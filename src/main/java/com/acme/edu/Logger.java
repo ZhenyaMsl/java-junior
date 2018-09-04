@@ -3,6 +3,8 @@ package com.acme.edu;
 import com.acme.edu.controller.Controller;
 import com.acme.edu.decorator.Decorator;
 import com.acme.edu.message.*;
+import com.acme.edu.saver.FileSaver;
+import com.acme.edu.saver.Saver;
 
 /**
  * The Logger class provides functions to save messages of different data types.
@@ -89,6 +91,10 @@ public class Logger {
      */
     public static int setDecorator(MessageType type, Decorator newDecorator) {
         return controller.update(type, newDecorator);
+    }
+
+    public static void setSaver(Saver saver) {
+        controller.setSaver(saver);
     }
 
     private static Controller controller = new Controller(System.out::println);

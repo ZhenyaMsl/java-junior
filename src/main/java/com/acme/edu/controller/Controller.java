@@ -8,12 +8,15 @@ import com.acme.edu.saver.DefaultSaver;
 import com.acme.edu.saver.Saver;
 import com.acme.edu.saver.SavingException;
 
+import java.util.Collection;
 import java.util.EnumMap;
+import java.util.LinkedList;
 
 public class Controller {
-    private Saver defaultSaver = new DefaultSaver();
+    private Saver saver = new DefaultSaver();
     private Message prevMessage = new FlushMessage();
     private EnumMap<MessageType, Decorator> decoratorMap;
+    private Collection<Message> messageList = new LinkedList<>();
 
     public Controller() {
         decoratorMap = new EnumMap<>(MessageType.class);
@@ -30,16 +33,26 @@ public class Controller {
 
     public Controller(Saver saver) {
         this();
-        defaultSaver = saver;
+        this.saver = saver;
     }
 
     public int log(Message message) {
         if (prevMessage.isAbleToAccumulate(message)) {
-            prevMessage = prevMessage.accumulate(message);
+            messageList.add(message);
         } else {
             try {
-                defaultSaver.save(prevMessage.decorate(decoratorMap));
+                Message outputMessage;
+                if (messageList.size() > 1) {
+                    outputMessage = messageList.stream()
+                            .reduce((message1, message2) -> message1.accumulate(message2))
+                            .get();
+                } else {
+                    outputMessage = prevMessage;
+                }
+                messageList.clear();
                 prevMessage = message;
+                messageList.add(message);
+                saver.save(outputMessage.decorate(decoratorMap));
             } catch (SavingException se) {
                 if (se.getExceptionCode() != 1) {
                     return se.getExceptionCode();
@@ -58,5 +71,9 @@ public class Controller {
             return 1;
         }
         return 0;
+    }
+
+    public void setSaver(Saver saver) {
+        this.saver = saver;
     }
 }
