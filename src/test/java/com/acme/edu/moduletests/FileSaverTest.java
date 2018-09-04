@@ -5,6 +5,7 @@ import com.acme.edu.saver.Saver;
 import com.acme.edu.saver.SavingException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.*;
@@ -28,7 +29,7 @@ public class FileSaverTest {
         (new File(logFileName)).delete();
     }
 
-    @Test
+    @Test @Ignore
     public void shouldSaveStringToFile() throws SavingException, IOException {
         String message = "test string";
 
